@@ -14,26 +14,26 @@ local skinningWeapon = nil
 local skinningGloves = nil
 local weaponSlot = 0
 local glovesSlot = 0
+local loaded = false
+local version = "0.2"
 
 
 function SkinningKnife_OnLoad(self)
     weaponSlot = GetInventorySlotInfo("MainHandSlot")
     glovesSlot = GetInventorySlotInfo("HandsSlot")
+    self:RegisterEvent("PLAYER_ENTERING_WORLD")
+end
 
+function SkinningKnife_Register(self)
     skillLine, skillLevel = SkinningKnife_GetSkinningInfo()
     if skillLevel<1 then
-        print("Skinning Knife 0.1: no skinning skill")
+        print("Skinning Knife "..version..": no skinning skill")
         return
     end
-    SkinningKnife_CheckInventory()
-    local s = ""
-    if skinningWeapon then
-        s = s.." skinning weapon";
-    end
-    if skinningGloves then
-        s = s.." enchanted gloves"
-    end
-    print("Skinning Knife 0.1: skinning " .. skillLevel .. " items ["..s.." ]")
+
+    print("Skinning Knife "..version..": skinning " .. skillLevel)
+
+    self:UnregisterEvent("PLAYER_ENTERING_WORLD")
     self:RegisterEvent("PLAYER_REGEN_DISABLED")
     self:RegisterEvent("PLAYER_REGEN_ENABLED")
     self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
@@ -44,9 +44,11 @@ function SkinningKnife_OnLoad(self)
 end
 
 function SkinningKnife_OnEvent(self, event, ...)
-    if event=="BANKFRAME_CLOSED" then
+    if event=="PLAYER_ENTERING_WORLD" then
+        SkinningKnife_Register(self)
+    elseif event=="BANKFRAME_CLOSED" then
         SkinningKnife_CheckInventory()
-    elseif not skinningGloves and not skinningWeapon then
+    elseif loaded and not skinningGloves and not skinningWeapon then
         return
     elseif event=="PLAYER_REGEN_ENABLED" then
         combat=false
@@ -148,6 +150,10 @@ function SkinningKnife_SetTimer(time)
 end
 
 function SkinningKnife_Equip()
+    if not loaded then
+        SkinningKnife_CheckInventory()
+        loaded = true
+    end
     equiped = true
     if skinningWeapon then
         local myweapon = GetInventoryItemID("player", weaponSlot)
@@ -191,12 +197,13 @@ function SkinningKnife_CheckInventory()
         for slot = 1, GetContainerNumSlots(bag) do
             local item = GetContainerItemID(bag, slot)
             if item then
-                local itemtname, itemlink, _, _, _, _, _, _, itemequip = GetItemInfo(item);
+                local itemtname, _, _, _, _, _, _, _, itemequip = GetItemInfo(item);
                 if item==12709 or item==19901 then
                     skinningWeapon = item
                 elseif itemequip == "INVTYPE_HAND" then
-                    local _, enchantId = itemlink:match("item:(%d+):(%d+):")
-                    if enchantId==865 then
+                    local _, _, _, _, _, _, itemlink = GetContainerItemInfo(bag, slot)
+                    local id, enchantId = itemlink:match("item:(%d+):(%d+):")
+                    if enchantId=="865" then
                         skinningGloves = item
                     end
                 end
