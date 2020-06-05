@@ -1,0 +1,7 @@
+## Interface: 11304
+## Title: Skinnig Knife
+## Notes: Automatically equips skinning equipment
+## Author: Miriele (EU Zandalar Tribe)
+## Version: 0.1
+
+SkinningKnife.xml
