@@ -2,6 +2,6 @@
 ## Title: Skinnig Knife
 ## Notes: Automatically equips skinning equipment
 ## Author: Miriele (EU Zandalar Tribe)
-## Version: 0.2
+## Version: 0.3
 
 SkinningKnife.xml

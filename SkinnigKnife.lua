@@ -15,7 +15,7 @@ local skinningGloves = nil
 local weaponSlot = 0
 local glovesSlot = 0
 local loaded = false
-local version = "0.2"
+local version = "0.3"
 
 
 function SkinningKnife_OnLoad(self)
